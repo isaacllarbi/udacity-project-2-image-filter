@@ -13,24 +13,6 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
-  // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
-  // GET /filteredimage?image_url={{URL}}
-  // endpoint to filter an image from a public url.
-  // IT SHOULD
-  //    1
-  //    1. validate the image_url query
-  //    2. call filterImageFromURL(image_url) to filter the image
-  //    3. send the resulting file in the response
-  //    4. deletes any files on the server on finish of the response
-  // QUERY PARAMATERS
-  //    image_url: URL of a publicly accessible image
-  // RETURNS
-  //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
-
-  /**************************************************************************** */
-
-  //! END @TODO1
-
   // Root Endpoint
   // Displays a simple message to the user
   app.get("/", async (req, res) => {
@@ -38,21 +20,33 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
   });
 
   app.get("/filteredimage", async (req, res) => {
-    //Get image url from query
+    //Extract image_url from HTTP request
     let { image_url } = req.query;
 
-    //Validate image_url value
+    //Validate the image_url query
     const urlIsValid: boolean = image_url != '' && (image_url.toString().includes("http://")
       || image_url.toString().includes("https://"));
 
     if (urlIsValid) {
       try {
-        const filteredpath: string = await filterImageFromURL(image_url.toString())
-        res.status(200).sendFile(filteredpath);
+        //call filterImageFromURL(image_url) to filter the image
+        const file: string = await filterImageFromURL(image_url.toString())
+
+        //send the resulting file in the response
+        res.status(200).sendFile(file, err => {
+          if (err) {
+            console.log(err);
+            res.status(500).send(`${err.message}`);
+          }
+
+          // delete file
+          let filesToDelete: string[] = [file];
+          deleteLocalFiles(filesToDelete)
+        });
 
       } catch (error) {
         console.log(error);
-        res.status(500).send(JSON.stringify(error))
+        res.status(500).send(`${error}`)
       }
     } else {
       res.status(422).send(`Bad url, Please provide an image url`);
