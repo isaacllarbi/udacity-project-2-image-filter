@@ -33,6 +33,8 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
         const file: string = await filterImageFromURL(image_url.toString())
 
         //send the resulting file in the response
+        // I got help on how to delete the file only after sending the response to the client from 
+        // https://stackoverflow.com/questions/59759842/nodejs-file-get-deleted-before-sending-response-res-send
         res.status(200).sendFile(file, err => {
           if (err) {
             console.log(err);
