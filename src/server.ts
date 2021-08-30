@@ -41,14 +41,14 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
     //Get image url from query
     let { image_url } = req.query;
 
-    //Validate image query
+    //Validate image_url value
     const urlIsValid: boolean = image_url != '' && (image_url.toString().includes("http://")
       || image_url.toString().includes("https://"));
 
     if (urlIsValid) {
       try {
         const filteredpath: string = await filterImageFromURL(image_url.toString())
-        res.sendFile(filteredpath);
+        res.status(200).sendFile(filteredpath);
 
       } catch (error) {
         console.log(error);
